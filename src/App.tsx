@@ -1,19 +1,23 @@
-import { useMemo, useState } from "react";
-import { ExternalLink, Pencil, Plus, Search, Settings, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ExternalLink,
+  FolderOpen,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Save,
+  Search,
+  Settings,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import "./App.css";
 
-import type {
-  ApplicationStatus,
-  JobApplication
-} from "./types"
-
-// Constants
+import type { ApplicationStatus, JobApplication, PersistedAppState } from "./types";
 
 const STATUSES: ApplicationStatus[] = ["Pending", "Accepted", "Rejected", "Ghosted"];
-// Temp Data
-const APPLICATIONS: JobApplication[] = [];
+const EMPTY_APP_STATE: PersistedAppState = { version: 1, applications: [] };
 
-// Derives a company name from a URL 
 function inferCompanyName(rawLink: string): string {
   try {
     const url = new URL(rawLink.startsWith("http") ? rawLink : `https://${rawLink}`);
@@ -27,11 +31,16 @@ function inferCompanyName(rawLink: string): string {
   }
 }
 
+function normalizeLink(rawLink: string): string {
+  const trimmed = rawLink.trim();
+  if (!trimmed) return "";
+  return trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
+}
+
 function pillClass(status: ApplicationStatus): string {
   return status.toLowerCase();
 }
 
-// Renders the Yes/No cover letter and reference columns
 function BoolChip({ value }: { value: boolean }) {
   return (
     <span className={`bool-chip ${value ? "bool-yes" : "bool-no"}`}>
@@ -40,25 +49,64 @@ function BoolChip({ value }: { value: boolean }) {
   );
 }
 
-// Main component
 function App() {
   const [activeStatus, setActiveStatus] = useState<ApplicationStatus>("Pending");
   const [searchTerm, setSearchTerm] = useState("");
-  const [applications, setApplications] = useState<JobApplication[]>(APPLICATIONS);
-  // Add modal state
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [storageMessage, setStorageMessage] = useState("");
+
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newLink, setNewLink] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newCoverLetter, setNewCoverLetter] = useState(false);
   const [newReference, setNewReference] = useState(false);
-  // Edit modal state 
+
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editLink, setEditLink] = useState("");
   const [editCompanyName, setEditCompanyName] = useState("");
   const [editCoverLetter, setEditCoverLetter] = useState(false);
   const [editReference, setEditReference] = useState(false);
 
-  // Count per status tab
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadApplications() {
+      try {
+        const storedState = await window.appStorage.load();
+        if (!ignore && storedState?.applications) {
+          setApplications(storedState.applications);
+        }
+      } catch (error) {
+        console.error(error);
+        if (!ignore) setStorageMessage("Could not load saved applications.");
+      } finally {
+        if (!ignore) setIsLoaded(true);
+      }
+    }
+
+    loadApplications();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const state: PersistedAppState = {
+      ...EMPTY_APP_STATE,
+      applications,
+    };
+
+    window.appStorage.save(state).catch((error) => {
+      console.error(error);
+      setStorageMessage("Could not save applications.");
+    });
+  }, [applications, isLoaded]);
+
   const countByStatus = useMemo(() => {
     const counts: Record<ApplicationStatus, number> = {
       Pending: 0,
@@ -70,29 +118,25 @@ function App() {
     return counts;
   }, [applications]);
 
-  // Rows visible in the table
   const visibleApplications = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
     return applications.filter(
       (app) =>
         app.status === activeStatus &&
-        app.companyName.toLowerCase().includes(query)
+        app.companyName.toLowerCase().includes(query),
     );
   }, [applications, activeStatus, searchTerm]);
 
-  // Moves a single application to a new status
   function updateStatus(id: number, status: ApplicationStatus) {
     setApplications((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, status } : app))
+      prev.map((app) => (app.id === id ? { ...app, status } : app)),
     );
   }
 
-  // Removes an application by id
   function deleteApplication(id: number) {
     setApplications((prev) => prev.filter((app) => app.id !== id));
   }
 
-  // Add modal handlers
   function handleLinkChange(value: string) {
     setNewLink(value);
     const inferred = inferCompanyName(value);
@@ -101,17 +145,18 @@ function App() {
 
   function handleAddApplication() {
     if (!newLink.trim() || !newCompanyName.trim()) return;
+
     const application: JobApplication = {
       id: Date.now(),
       dateApplied: new Date().toISOString().slice(0, 10),
       companyName: newCompanyName.trim(),
-      link: newLink.trim(),
+      link: normalizeLink(newLink),
       coverLetter: newCoverLetter,
       reference: newReference,
       status: "Pending",
     };
+
     setApplications((prev) => [application, ...prev]);
-    // Reset form fields 
     setNewLink("");
     setNewCompanyName("");
     setNewCoverLetter(false);
@@ -120,7 +165,6 @@ function App() {
     setActiveStatus("Pending");
   }
 
-  // Edit modal handlers
   function openEdit(id: number) {
     const app = applications.find((a) => a.id === id);
     if (!app) return;
@@ -133,27 +177,69 @@ function App() {
 
   function handleSaveEdit() {
     if (!editingId || !editLink.trim() || !editCompanyName.trim()) return;
+
     setApplications((prev) =>
       prev.map((app) =>
         app.id === editingId
           ? {
               ...app,
-              link: editLink.trim(),
+              link: normalizeLink(editLink),
               companyName: editCompanyName.trim(),
               coverLetter: editCoverLetter,
               reference: editReference,
             }
-          : app
-      )
+          : app,
+      ),
     );
     setEditingId(null);
   }
 
+  async function handleExportBackup() {
+    const result = await window.appStorage.exportBackup();
+    if (!result.canceled) setStorageMessage("Backup exported.");
+  }
+
+  async function handleImportBackup() {
+    const restoredState = await window.appStorage.importBackup();
+    if (!restoredState) return;
+    setApplications(restoredState.applications);
+    setStorageMessage("Backup imported.");
+  }
+
+  async function handleRestoreLatestBackup() {
+    const restoredState = await window.appStorage.restoreLatestBackup();
+    if (!restoredState) {
+      setStorageMessage("No automatic backup found.");
+      return;
+    }
+    setApplications(restoredState.applications);
+    setStorageMessage("Latest automatic backup restored.");
+  }
+
+  async function handleOpenBackupFolder() {
+    const result = await window.appStorage.openBackupFolder();
+    setStorageMessage(
+      result.opened ? "Backup folder opened." : result.error ?? "Could not open backup folder.",
+    );
+  }
+
+  async function handleClearOldBackups() {
+    const result = await window.appStorage.clearOldBackups();
+    setStorageMessage(
+      `Backup cleanup complete. Deleted ${result.deletedCount}, kept ${result.keptCount}.`,
+    );
+  }
+
+  async function handleResetApplications() {
+    await window.appStorage.reset();
+    setApplications([]);
+    setStorageMessage("Applications reset.");
+    setIsSettingsOpen(false);
+  }
+
   return (
     <main className="app-shell">
-      {/* Top bar */}
       <header className="top-bar">
-        {/* Status */}
         <nav className="status-slider" aria-label="Application status filter">
           {STATUSES.map((status) => (
             <button
@@ -167,8 +253,8 @@ function App() {
             </button>
           ))}
         </nav>
+
         <div className="top-actions">
-          {/* Search */}
           <label className="search-box" aria-label="Search companies">
             <Search size={16} strokeWidth={2.5} aria-hidden />
             <input
@@ -185,12 +271,19 @@ function App() {
           >
             <Plus size={20} strokeWidth={2.8} />
           </button>
-          <button className="icon-button" aria-label="Settings" title="Settings">
+          <button
+            className="icon-button"
+            onClick={() => setIsSettingsOpen(true)}
+            aria-label="Settings"
+            title="Settings"
+          >
             <Settings size={20} strokeWidth={2.2} />
           </button>
         </div>
       </header>
-      {/* Applications table */}
+
+      {storageMessage && <div className="storage-message">{storageMessage}</div>}
+
       <section className="applications-panel">
         <div className="table-header table-grid">
           <span>Date</span>
@@ -211,17 +304,16 @@ function App() {
             visibleApplications.map((app) => (
               <article className="application-row table-grid" key={app.id}>
                 <span className="date-text">{app.dateApplied}</span>
-                <span className="company-name" title={app.companyName}>{app.companyName}</span>
+                <span className="company-name" title={app.companyName}>
+                  {app.companyName}
+                </span>
                 <a className="job-link" href={app.link} target="_blank" rel="noreferrer">
                   Open <ExternalLink size={11} aria-hidden />
                 </a>
                 <BoolChip value={app.coverLetter} />
                 <BoolChip value={app.reference} />
-                <span className={`status-pill ${pillClass(app.status)}`}>
-                  {app.status}
-                </span>
+                <span className={`status-pill ${pillClass(app.status)}`}>{app.status}</span>
                 <div className="row-actions">
-                  {/* Edit */}
                   <button
                     className="icon-action"
                     onClick={() => openEdit(app.id)}
@@ -230,14 +322,12 @@ function App() {
                     <Pencil size={13} />
                   </button>
 
-                  {/* Status transition buttons */}
                   {STATUSES.filter((s) => s !== app.status).map((status) => (
                     <button key={status} onClick={() => updateStatus(app.id, status)}>
                       {status}
                     </button>
                   ))}
 
-                  {/* Delete */}
                   <button
                     className="icon-action danger"
                     onClick={() => deleteApplication(app.id)}
@@ -245,14 +335,13 @@ function App() {
                   >
                     <Trash2 size={13} />
                   </button>
-
                 </div>
               </article>
             ))
           )}
         </div>
       </section>
-      {/* Add application modal */}
+
       {isAddOpen && (
         <div
           className="modal-backdrop"
@@ -311,7 +400,7 @@ function App() {
           </section>
         </div>
       )}
-      {/* Edit application modal */}
+
       {editingId !== null && (
         <div
           className="modal-backdrop"
@@ -363,6 +452,52 @@ function App() {
               </button>
               <button className="primary-button" onClick={handleSaveEdit}>
                 Save changes
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+      {isSettingsOpen && (
+        <div
+          className="modal-backdrop"
+          onMouseDown={() => setIsSettingsOpen(false)}
+          aria-modal="true"
+          role="dialog"
+          aria-labelledby="settings-modal-title"
+        >
+          <section className="modal settings-modal" onMouseDown={(e) => e.stopPropagation()}>
+            <h2 id="settings-modal-title">Settings</h2>
+            <p className="settings-copy">
+              Application data is saved locally in a SQLite database. Backups are stored as JSON files.
+            </p>
+            <div className="settings-action-list">
+              <button onClick={handleExportBackup}>
+                <Save size={16} />
+                Export backup
+              </button>
+              <button onClick={handleImportBackup}>
+                <Upload size={16} />
+                Import backup
+              </button>
+              <button onClick={handleRestoreLatestBackup}>
+                <RotateCcw size={16} />
+                Restore latest automatic backup
+              </button>
+              <button onClick={handleOpenBackupFolder}>
+                <FolderOpen size={16} />
+                Open backup folder
+              </button>
+              <button onClick={handleClearOldBackups}>
+                <Trash2 size={16} />
+                Clear old backups
+              </button>
+            </div>
+            <div className="modal-actions split-actions">
+              <button className="danger-button" onClick={handleResetApplications}>
+                Reset applications
+              </button>
+              <button className="secondary-button" onClick={() => setIsSettingsOpen(false)}>
+                Close
               </button>
             </div>
           </section>

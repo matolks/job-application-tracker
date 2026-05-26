@@ -9,3 +9,24 @@ export type JobApplication = {
   reference: boolean;
   status: ApplicationStatus;
 };
+
+export type PersistedAppState = {
+  version: number;
+  applications: JobApplication[];
+};
+
+export type BackupExportResult = {
+  canceled: boolean;
+  filePath?: string;
+};
+
+export type BackupFolderResult = {
+  opened: boolean;
+  error?: string;
+};
+
+export type BackupCleanupResult = {
+  deletedCount: number;
+  keptCount: number;
+  backupDir: string;
+};
