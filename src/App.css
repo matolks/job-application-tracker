@@ -29,14 +29,13 @@ button {
   cursor: pointer;
 }
 
-/* ── Shell ──────────────────────────────────── */
 .app-shell {
   min-height: 100vh;
   padding: 20px 24px 48px;
   background: #b8d8f8;
 }
 
-/* ── Top bar ────────────────────────────────── */
+/* Top bar */
 .top-bar {
   display: flex;
   align-items: center;
@@ -45,10 +44,6 @@ button {
   margin-bottom: 28px;
 }
 
-/* ── Status strip ───────────────────────────── 
-   Pill-shaped tab strip. The active tab lifts with
-   a white fill; inactive tabs are ghost text on the
-   frosted strip. */
 .status-slider {
   display: flex;
   align-items: center;
@@ -87,7 +82,7 @@ button {
   box-shadow: 0 2px 10px rgba(6, 20, 47, 0.12);
 }
 
-/* Live count badge inside each tab */
+/* Live counts */
 .count-badge {
   font-size: 11px;
   font-weight: 700;
@@ -103,14 +98,14 @@ button {
   color: #061b4a;
 }
 
-/* ── Top-right actions ──────────────────────── */
+/* Actions */
 .top-actions {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-/* Search box — frosted glass pill */
+/* Search box */
 .search-box {
   display: flex;
   align-items: center;
@@ -148,7 +143,7 @@ button {
   color: rgba(6, 20, 47, 0.42);
 }
 
-/* Circular glass icon buttons (+ and settings) */
+/* Icon buttons */
 .icon-button {
   width: 48px;
   height: 48px;
@@ -171,7 +166,7 @@ button {
   transform: scale(0.96);
 }
 
-/* ── Applications panel ─────────────────────── */
+/* Applications panel */
 .applications-panel {
   border-radius: 20px;
   overflow: hidden;
@@ -208,7 +203,7 @@ button {
   padding: 8px 0;
 }
 
-/* Data rows — frosted white cards with hover lift */
+/* Data rows */
 .application-row {
   height: 68px;
   border-radius: 12px;
@@ -238,7 +233,7 @@ button {
   text-overflow: ellipsis;
 }
 
-/* "Open" link with external icon */
+/* "Open" */
 .job-link {
   display: inline-flex;
   align-items: center;
@@ -257,7 +252,6 @@ button {
   background: rgba(26, 78, 166, 0.16);
 }
 
-/* Yes / No boolean chips */
 .bool-chip {
   display: inline-flex;
   align-items: center;
@@ -278,7 +272,7 @@ button {
   color: rgba(6, 20, 47, 0.45);
 }
 
-/* Status pills — distinct, accessible color pair per state */
+/* Status */
 .status-pill {
   display: inline-block;
   font-size: 12px;
@@ -309,7 +303,6 @@ button {
   color: #374151;
 }
 
-/* Row action buttons */
 .row-actions {
   display: flex;
   align-items: center;
@@ -317,7 +310,7 @@ button {
   flex-wrap: wrap;
 }
 
-/* Text action buttons (status transitions) */
+/* Action buttons */
 .row-actions button {
   height: 28px;
   border: 1px solid rgba(6, 20, 47, 0.16);
@@ -337,7 +330,6 @@ button {
   background: rgba(255, 255, 255, 0.9);
 }
 
-/* Icon-only action buttons (edit, delete) */
 .row-actions .icon-action {
   width: 28px;
   height: 28px;
@@ -346,7 +338,7 @@ button {
   place-items: center;
 }
 
-/* Delete button turns red on hover as a warning signal */
+/* Delete button */
 .row-actions .danger:hover {
   background: #fee2e2;
   color: #991b1b;
@@ -361,10 +353,7 @@ button {
   font-size: 16px;
 }
 
-/* ── Modal backdrop ─────────────────────────── 
-   Fixed overlay with frosted blur. The inner modal
-   is centered via flex. Note: do not use position:fixed
-   for the modal itself or the iframe collapses. */
+/* Modal backdrop */ 
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -396,7 +385,7 @@ button {
   margin: 0;
 }
 
-/* Field label — small caps above the input */
+/* Field label */
 .modal label {
   display: flex;
   flex-direction: column;
@@ -430,7 +419,7 @@ button {
   color: rgba(6, 20, 47, 0.35);
 }
 
-/* Checkbox row — horizontal layout for cover letter + reference */
+/* Checkbox row */
 .checkbox-row {
   display: flex;
   gap: 24px;
@@ -499,7 +488,7 @@ button {
   background: rgba(255, 255, 255, 0.8);
 }
 
-/* ── Storage message ───────────────────────── */
+/* Storage message */
 .storage-message {
   width: fit-content;
   max-width: 720px;
@@ -513,7 +502,7 @@ button {
   font-weight: 700;
 }
 
-/* ── Settings modal ────────────────────────── */
+/* Settings modal */
 .settings-modal {
   width: min(540px, 100%);
 }

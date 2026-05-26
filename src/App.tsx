@@ -55,14 +55,14 @@ function App() {
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [storageMessage, setStorageMessage] = useState("");
-
+  // Add modal state
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newLink, setNewLink] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newCoverLetter, setNewCoverLetter] = useState(false);
   const [newReference, setNewReference] = useState(false);
-
+  // Edit modal state
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editLink, setEditLink] = useState("");
   const [editCompanyName, setEditCompanyName] = useState("");
@@ -71,7 +71,6 @@ function App() {
 
   useEffect(() => {
     let ignore = false;
-
     async function loadApplications() {
       try {
         const storedState = await window.appStorage.load();
@@ -85,9 +84,7 @@ function App() {
         if (!ignore) setIsLoaded(true);
       }
     }
-
     loadApplications();
-
     return () => {
       ignore = true;
     };
@@ -95,12 +92,10 @@ function App() {
 
   useEffect(() => {
     if (!isLoaded) return;
-
     const state: PersistedAppState = {
       ...EMPTY_APP_STATE,
       applications,
     };
-
     window.appStorage.save(state).catch((error) => {
       console.error(error);
       setStorageMessage("Could not save applications.");
@@ -145,7 +140,6 @@ function App() {
 
   function handleAddApplication() {
     if (!newLink.trim() || !newCompanyName.trim()) return;
-
     const application: JobApplication = {
       id: Date.now(),
       dateApplied: new Date().toISOString().slice(0, 10),
@@ -155,7 +149,6 @@ function App() {
       reference: newReference,
       status: "Pending",
     };
-
     setApplications((prev) => [application, ...prev]);
     setNewLink("");
     setNewCompanyName("");
@@ -177,7 +170,6 @@ function App() {
 
   function handleSaveEdit() {
     if (!editingId || !editLink.trim() || !editCompanyName.trim()) return;
-
     setApplications((prev) =>
       prev.map((app) =>
         app.id === editingId
@@ -253,7 +245,6 @@ function App() {
             </button>
           ))}
         </nav>
-
         <div className="top-actions">
           <label className="search-box" aria-label="Search companies">
             <Search size={16} strokeWidth={2.5} aria-hidden />
@@ -281,9 +272,7 @@ function App() {
           </button>
         </div>
       </header>
-
       {storageMessage && <div className="storage-message">{storageMessage}</div>}
-
       <section className="applications-panel">
         <div className="table-header table-grid">
           <span>Date</span>
@@ -400,7 +389,6 @@ function App() {
           </section>
         </div>
       )}
-
       {editingId !== null && (
         <div
           className="modal-backdrop"
@@ -466,7 +454,7 @@ function App() {
           aria-labelledby="settings-modal-title"
         >
           <section className="modal settings-modal" onMouseDown={(e) => e.stopPropagation()}>
-            <h2 id="settings-modal-title">Settings</h2>
+            <h2 id="settings-modal-title">Database Settings</h2>
             <p className="settings-copy">
               Application data is saved locally in a SQLite database. Backups are stored as JSON files.
             </p>

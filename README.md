@@ -10,15 +10,6 @@ A desktop application for tracking job applications. It keeps track of company n
 - Store application data locally
 - Export, import, restore, and manage JSON backups
 
-## Tech Stack
-
-- TypeScript
-- React
-- Electron
-- Vite
-- SQLite
-- CSS
-
 ## How to Run
 
 In a terminal run:
@@ -30,11 +21,40 @@ npm install
 npm run desktop
 ```
 
-## License
+## Tech Stack
+
+- TypeScript
+- React
+- Electron
+- Vite
+- SQLite
+- CSS
+
+## Screenshots
+
+![Main](Screenshots/Main.png)
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="Screenshots/Add-Application.png" alt="Add Application" width="420">
+      <br>
+      <sub>Add Application</sub>
+    </td>
+    <td align="center">
+      <img src="Screenshots/Database-Settings.png" alt="Database Settings" width="420">
+      <br>
+      <sub>Database Settings</sub>
+    </td>
+  </tr>
+</table>
+
+## Future Improvements
 
 - Allow uplaod and download of cover letters
 - Auto move to ghosted after X amount of time
 - Allow a graph export to visually display all your applications
+- Better recovery method (only toggels w/ last backup)
 
 ## License
 
