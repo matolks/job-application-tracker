@@ -1,0 +1,505 @@
+/* ─────────────────────────────────────────────
+   App.css — Job Application Tracker
+   Palette: deep navy text on sky-blue glass surfaces
+───────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #06142f;
+  background: #b8d8f8;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-width: 900px;
+  min-height: 100vh;
+  background: #b8d8f8;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ── Shell ──────────────────────────────────── */
+.app-shell {
+  min-height: 100vh;
+  padding: 20px 24px 48px;
+  background: #b8d8f8;
+}
+
+/* ── Top bar ────────────────────────────────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+/* ── Status strip ───────────────────────────── 
+   Pill-shaped tab strip. The active tab lifts with
+   a white fill; inactive tabs are ghost text on the
+   frosted strip. */
+.status-slider {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  padding: 5px;
+  backdrop-filter: blur(8px);
+}
+
+.status-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 108px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: rgba(6, 20, 47, 0.55);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 999px;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.status-tab:hover {
+  color: #06142f;
+}
+
+.status-tab.active {
+  background: #ffffff;
+  color: #061b4a;
+  box-shadow: 0 2px 10px rgba(6, 20, 47, 0.12);
+}
+
+/* Live count badge inside each tab */
+.count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(6, 20, 47, 0.1);
+  color: rgba(6, 20, 47, 0.5);
+  padding: 1px 7px;
+  border-radius: 999px;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.status-tab.active .count-badge {
+  background: #eef4ff;
+  color: #061b4a;
+}
+
+/* ── Top-right actions ──────────────────────── */
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Search box — frosted glass pill */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 240px;
+  height: 48px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.28);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.search-box:focus-within {
+  border-color: rgba(6, 20, 47, 0.4);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.search-box svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.search-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #06142f;
+  font-size: 14px;
+}
+
+.search-box input::placeholder {
+  color: rgba(6, 20, 47, 0.42);
+}
+
+/* Circular glass icon buttons (+ and settings) */
+.icon-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.28);
+  color: #06142f;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(8px);
+  transition: background 160ms ease, transform 120ms ease;
+}
+
+.icon-button:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.icon-button:active {
+  transform: scale(0.96);
+}
+
+/* ── Applications panel ─────────────────────── */
+.applications-panel {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+/* 7-column grid: date | company | link | cover | ref | status | actions */
+.table-grid {
+  display: grid;
+  grid-template-columns: 110px 1.4fr 80px 90px 90px 120px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+}
+
+/* Sticky header bar */
+.table-header {
+  height: 50px;
+  background: rgba(6, 20, 47, 0.82);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+}
+
+/* Data rows — frosted white cards with hover lift */
+.application-row {
+  height: 68px;
+  border-radius: 12px;
+  margin: 0 8px;
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  color: #06142f;
+  transition: background 140ms ease, transform 100ms ease;
+}
+
+.application-row:hover {
+  background: rgba(255, 255, 255, 0.78);
+  transform: translateY(-1px);
+}
+
+.date-text {
+  font-size: 13px;
+  color: rgba(6, 20, 47, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+.company-name {
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Open" link with external icon */
+.job-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a4ea6;
+  text-decoration: none;
+  background: rgba(26, 78, 166, 0.08);
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: background 140ms ease;
+}
+
+.job-link:hover {
+  background: rgba(26, 78, 166, 0.16);
+}
+
+/* Yes / No boolean chips */
+.bool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.bool-yes {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.bool-no {
+  background: rgba(6, 20, 47, 0.07);
+  color: rgba(6, 20, 47, 0.45);
+}
+
+/* Status pills — distinct, accessible color pair per state */
+.status-pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.status-pill.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-pill.accepted {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-pill.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pill.ghosted {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Row action buttons */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Text action buttons (status transitions) */
+.row-actions button {
+  height: 28px;
+  border: 1px solid rgba(6, 20, 47, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: #06142f;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 120ms ease;
+}
+
+.row-actions button:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Icon-only action buttons (edit, delete) */
+.row-actions .icon-action {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* Delete button turns red on hover as a warning signal */
+.row-actions .danger:hover {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+/* Empty state */
+.empty-state {
+  padding: 60px 24px;
+  text-align: center;
+  color: rgba(6, 20, 47, 0.45);
+  font-size: 16px;
+}
+
+/* ── Modal backdrop ─────────────────────────── 
+   Fixed overlay with frosted blur. The inner modal
+   is centered via flex. Note: do not use position:fixed
+   for the modal itself or the iframe collapses. */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 8, 23, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 100;
+}
+
+.modal {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 24px;
+  background: #dbeeff;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 60px rgba(2, 8, 23, 0.25);
+}
+
+.modal h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #06142f;
+  margin: 0;
+}
+
+/* Field label — small caps above the input */
+.modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(6, 20, 47, 0.65);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modal input[type='text'],
+.modal input:not([type]) {
+  height: 46px;
+  border: 1.5px solid rgba(6, 20, 47, 0.2);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #06142f;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 160ms ease;
+}
+
+.modal input[type='text']:focus,
+.modal input:not([type]):focus {
+  border-color: #1a4ea6;
+}
+
+.modal input::placeholder {
+  color: rgba(6, 20, 47, 0.35);
+}
+
+/* Checkbox row — horizontal layout for cover letter + reference */
+.checkbox-row {
+  display: flex;
+  gap: 24px;
+}
+
+.checkbox-row label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #06142f;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.checkbox-row input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  accent-color: #061b4a;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.primary-button {
+  height: 42px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 12px;
+  background: #061b4a;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 140ms ease, transform 100ms ease;
+}
+
+.primary-button:hover {
+  background: #0a2a6e;
+}
+
+.primary-button:active {
+  transform: scale(0.97);
+}
+
+.secondary-button {
+  height: 42px;
+  padding: 0 20px;
+  border: 1.5px solid rgba(6, 20, 47, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  color: #06142f;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 140ms ease;
+}
+
+.secondary-button:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
