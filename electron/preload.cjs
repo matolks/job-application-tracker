@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer, shell } = require("electron");
+const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("appStorage", {
   load: () => ipcRenderer.invoke("app-state:load"),
@@ -10,5 +10,5 @@ contextBridge.exposeInMainWorld("appStorage", {
     ipcRenderer.invoke("app-state:restore-latest-backup"),
   openBackupFolder: () => ipcRenderer.invoke("app-state:open-backup-folder"),
   clearOldBackups: () => ipcRenderer.invoke("app-state:clear-old-backups"),
-  openExternal: (url) => shell.openExternal(url),
+  openExternal: (url) => ipcRenderer.invoke("app-state:open-external", url),
 });
