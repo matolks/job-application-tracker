@@ -280,6 +280,7 @@ button {
   background: rgba(26, 78, 166, 0.08);
   padding: 4px 10px;
   border-radius: 8px;
+  border: none;
   transition: background 140ms ease;
 }
 

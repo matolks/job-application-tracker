@@ -15,6 +15,7 @@ declare global {
         keptCount: number;
         backupDir: string;
       }>;
+      openExternal: (url: string) => Promise<void>;
     };
   }
 }

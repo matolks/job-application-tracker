@@ -345,9 +345,13 @@ function App() {
                       <span className="job-title-text" title={app.jobTitle}>
                         {app.jobTitle || <span className="muted">—</span>}
                       </span>
-                      <a className="job-link" href={app.link} target="_blank" rel="noreferrer">
+                      <button
+                        className="job-link"
+                        onClick={() => window.appStorage.openExternal(app.link)}
+                        aria-label={`Open ${app.companyName} job link`}
+                      >
                         Open <ExternalLink size={11} aria-hidden />
-                      </a>
+                      </button>
                       <BoolChip value={app.coverLetter} />
                       <BoolChip value={app.reference} />
                       <span className={`status-pill ${pillClass(app.status)}`}>
