@@ -82,7 +82,6 @@ button {
   box-shadow: 0 2px 10px rgba(6, 20, 47, 0.12);
 }
 
-/* Live counts */
 .count-badge {
   font-size: 11px;
   font-weight: 700;
@@ -110,7 +109,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 240px;
+  width: 280px;
   height: 48px;
   padding: 0 16px;
   background: rgba(255, 255, 255, 0.28);
@@ -166,45 +165,16 @@ button {
   transform: scale(0.96);
 }
 
-/* Applications panel */
-.applications-panel {
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-}
-
-/* 9-column grid: date | company | job title | location | link | cover | ref | status | actions */
+/* 8-column grid: date | company | job title | link | cover | ref | status | actions */
 .table-grid {
   display: grid;
-  grid-template-columns: 100px 1.2fr 1.2fr 1fr 72px 84px 84px 110px 1fr;
+  grid-template-columns: 100px 1.3fr 1.2fr 72px 90px 90px 110px 130px;
   align-items: center;
   gap: 14px;
   padding: 0 20px;
 }
 
-.job-title-text {
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.location-text {
-  font-size: 13px;
-  color: rgba(6, 20, 47, 0.6);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.muted {
-  opacity: 0.35;
-}
-
-/* Sticky header bar */
+/* Sticky header bar — sits above all location groups */
 .table-header {
   height: 50px;
   background: rgba(6, 20, 47, 0.82);
@@ -214,20 +184,52 @@ button {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  border-radius: 14px 14px 0 0;
+  margin-bottom: 0;
 }
 
 .table-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 0;
+  margin-top: 8px;
+}
+
+/* Location groups */
+.location-group--gap {
+  margin-top: 16px;
+}
+
+.location-group-panel {
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  padding-bottom: 6px;
+}
+
+.location-group-header {
+  height: 40px;
+  background: rgba(6, 20, 47, 0.82);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-radius: 14px 14px 0 0;
+}
+
+.location-group-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* Data rows */
 .application-row {
   height: 68px;
-  border-radius: 12px;
-  margin: 0 8px;
+  border-radius: 10px;
+  margin: 2px 6px 0;
   background: rgba(255, 255, 255, 0.52);
   border: 1px solid rgba(255, 255, 255, 0.7);
   color: #06142f;
@@ -253,7 +255,20 @@ button {
   text-overflow: ellipsis;
 }
 
-/* "Open" */
+.job-title-text {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(6, 20, 47, 0.75);
+}
+
+.muted {
+  opacity: 0.35;
+}
+
+/* "Open" link */
 .job-link {
   display: inline-flex;
   align-items: center;
@@ -292,7 +307,7 @@ button {
   color: rgba(6, 20, 47, 0.45);
 }
 
-/* Status */
+/* Status pills */
 .status-pill {
   display: inline-block;
   font-size: 12px;
@@ -303,7 +318,12 @@ button {
   white-space: nowrap;
 }
 
-.status-pill.pending {
+.status-pill.saved {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-pill.applied {
   background: #fef3c7;
   color: #92400e;
 }
@@ -323,19 +343,13 @@ button {
   color: #374151;
 }
 
-.status-pill.saved {
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
+/* Row actions */
 .row-actions {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
 }
 
-/* Action buttons */
 .row-actions button {
   height: 28px;
   border: 1px solid rgba(6, 20, 47, 0.16);
@@ -361,13 +375,75 @@ button {
   padding: 0;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
 }
 
-/* Delete button */
-.row-actions .danger:hover {
-  background: #fee2e2;
+/* Action dropdown */
+.action-menu-wrap {
+  position: relative;
+}
+
+.action-menu-trigger {
+  height: 28px;
+  border: 1px solid rgba(6, 20, 47, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: #06142f;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 120ms ease;
+  white-space: nowrap;
+}
+
+.action-menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.action-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 140px;
+  background: #dbeeff;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(2, 8, 23, 0.18);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.action-menu button {
+  width: 100%;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #06142f;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 100ms ease;
+  text-align: left;
+}
+
+.action-menu button:hover {
+  background: rgba(6, 20, 47, 0.08);
+}
+
+.action-menu button.danger {
   color: #991b1b;
-  border-color: #fecaca;
+}
+
+.action-menu button.danger:hover {
+  background: #fee2e2;
 }
 
 /* Empty state */
@@ -378,7 +454,7 @@ button {
   font-size: 16px;
 }
 
-/* Modal backdrop */ 
+/* Modal backdrop */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -410,7 +486,6 @@ button {
   margin: 0;
 }
 
-/* Field label */
 .modal label {
   display: flex;
   flex-direction: column;
@@ -444,7 +519,6 @@ button {
   color: rgba(6, 20, 47, 0.35);
 }
 
-/* Checkbox row */
 .checkbox-row {
   display: flex;
   gap: 24px;

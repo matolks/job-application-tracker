@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ChevronDown,
   ExternalLink,
   FolderOpen,
   Pencil,
@@ -70,6 +71,8 @@ function App() {
   const [editLocation, setEditLocation] = useState("");
   const [editCoverLetter, setEditCoverLetter] = useState(false);
   const [editReference, setEditReference] = useState(false);
+  const [openActionId, setOpenActionId] = useState<number | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -99,6 +102,16 @@ function App() {
     });
   }, [applications, isLoaded]);
 
+  useEffect(() => {
+    if (openActionId === null) return;
+    function handleClick() {
+      setOpenActionId(null);
+      setMenuPos(null);
+    }
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, [openActionId]);
+
   const countByStatus = useMemo(() => {
     const counts: Record<ApplicationStatus, number> = {
       Saved: 0,
@@ -117,10 +130,22 @@ function App() {
       (app) =>
         app.status === activeStatus &&
         (app.companyName.toLowerCase().includes(query) ||
-          app.jobTitle?.toLowerCase().includes(query) ||
-          app.location?.toLowerCase().includes(query)),
+          (app.jobTitle ?? "").toLowerCase().includes(query) ||
+          (app.location ?? "").toLowerCase().includes(query)),
     );
   }, [applications, activeStatus, searchTerm]);
+
+  const groupedApplications = useMemo(() => {
+    const groups = new Map<string, JobApplication[]>();
+    for (const app of visibleApplications) {
+      const key = app.location?.trim() || "No Location";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(app);
+    }
+    return groups;
+  }, [visibleApplications]);
+
+  const openActionApp = applications.find((a) => a.id === openActionId) ?? null;
 
   function updateStatus(id: number, status: ApplicationStatus) {
     setApplications((prev) =>
@@ -280,19 +305,21 @@ function App() {
           </button>
         </div>
       </header>
+
       {storageMessage && <div className="storage-message">{storageMessage}</div>}
-      <section className="applications-panel">
+
+      <section>
         <div className="table-header table-grid">
           <span>Date</span>
           <span>Company</span>
           <span>Job Title</span>
-          <span>Location</span>
           <span>Link</span>
           <span>Cover Letter</span>
           <span>Reference</span>
           <span>Status</span>
           <span>Actions</span>
         </div>
+
         <div className="table-body">
           {visibleApplications.length === 0 ? (
             <div className="empty-state">
@@ -300,50 +327,101 @@ function App() {
               {searchTerm ? ` matching "${searchTerm}"` : ""}.
             </div>
           ) : (
-            visibleApplications.map((app) => (
-              <article className="application-row table-grid" key={app.id}>
-                <span className="date-text">{app.dateApplied}</span>
-                <span className="company-name" title={app.companyName}>
-                  {app.companyName}
-                </span>
-                <span className="job-title-text" title={app.jobTitle}>
-                  {app.jobTitle || <span className="muted">—</span>}
-                </span>
-                <span className="location-text" title={app.location}>
-                  {app.location || <span className="muted">—</span>}
-                </span>
-                <a className="job-link" href={app.link} target="_blank" rel="noreferrer">
-                  Open <ExternalLink size={11} aria-hidden />
-                </a>
-                <BoolChip value={app.coverLetter} />
-                <BoolChip value={app.reference} />
-                <span className={`status-pill ${pillClass(app.status)}`}>{app.status}</span>
-                <div className="row-actions">
-                  <button
-                    className="icon-action"
-                    onClick={() => openEdit(app.id)}
-                    aria-label={`Edit ${app.companyName}`}
-                  >
-                    <Pencil size={13} />
-                  </button>
-                  {STATUSES.filter((s) => s !== app.status).map((status) => (
-                    <button key={status} onClick={() => updateStatus(app.id, status)}>
-                      {status}
-                    </button>
+            Array.from(groupedApplications.entries()).map(([location, apps], groupIndex) => (
+              <div
+                key={location}
+                className={`location-group${groupIndex > 0 ? " location-group--gap" : ""}`}
+              >
+                <div className="location-group-panel">
+                  <div className="location-group-header">
+                    <span className="location-group-label">{location}</span>
+                  </div>
+                  {apps.map((app) => (
+                    <article className="application-row table-grid" key={app.id}>
+                      <span className="date-text">{app.dateApplied}</span>
+                      <span className="company-name" title={app.companyName}>
+                        {app.companyName}
+                      </span>
+                      <span className="job-title-text" title={app.jobTitle}>
+                        {app.jobTitle || <span className="muted">—</span>}
+                      </span>
+                      <a className="job-link" href={app.link} target="_blank" rel="noreferrer">
+                        Open <ExternalLink size={11} aria-hidden />
+                      </a>
+                      <BoolChip value={app.coverLetter} />
+                      <BoolChip value={app.reference} />
+                      <span className={`status-pill ${pillClass(app.status)}`}>
+                        {app.status}
+                      </span>
+                      <div className="row-actions">
+                        <button
+                          className="icon-action"
+                          onClick={() => openEdit(app.id)}
+                          aria-label={`Edit ${app.companyName}`}
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          className="action-menu-trigger"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            if (openActionId === app.id) {
+                              setOpenActionId(null);
+                              setMenuPos(null);
+                            } else {
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                              setMenuPos({
+                                top: rect.bottom + 5,
+                                left: rect.left,
+                              });
+                              setOpenActionId(app.id);
+                            }
+                          }}
+                          aria-label={`Actions for ${app.companyName}`}
+                        >
+                          Actions <ChevronDown size={12} />
+                        </button>
+                      </div>
+                    </article>
                   ))}
-                  <button
-                    className="icon-action danger"
-                    onClick={() => deleteApplication(app.id)}
-                    aria-label={`Delete ${app.companyName}`}
-                  >
-                    <Trash2 size={13} />
-                  </button>
                 </div>
-              </article>
+              </div>
             ))
           )}
         </div>
       </section>
+
+      {/* Action menu rendered at root level — escapes backdrop-filter stacking contexts */}
+      {openActionApp != null && menuPos != null && (
+        <div
+          className="action-menu"
+          style={{ top: menuPos.top, left: menuPos.left }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          {STATUSES.filter((s) => s !== openActionApp.status).map((status) => (
+            <button
+              key={status}
+              onClick={() => {
+                updateStatus(openActionApp.id, status);
+                setOpenActionId(null);
+                setMenuPos(null);
+              }}
+            >
+              {status}
+            </button>
+          ))}
+          <button
+            className="danger"
+            onClick={() => {
+              deleteApplication(openActionApp.id);
+              setOpenActionId(null);
+              setMenuPos(null);
+            }}
+          >
+            <Trash2 size={12} /> Delete
+          </button>
+        </div>
+      )}
 
       {isAddOpen && (
         <div
@@ -508,7 +586,8 @@ function App() {
           <section className="modal settings-modal" onMouseDown={(e) => e.stopPropagation()}>
             <h2 id="settings-modal-title">Database Settings</h2>
             <p className="settings-copy">
-              Application data is saved locally in a SQLite database. Backups are stored as JSON files.
+              Application data is saved locally in a SQLite database. Backups are stored as JSON
+              files.
             </p>
             <div className="settings-action-list">
               <button onClick={handleExportBackup}>
