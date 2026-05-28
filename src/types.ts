@@ -1,9 +1,11 @@
-export type ApplicationStatus = "Pending" | "Accepted" | "Rejected" | "Ghosted";
+export type ApplicationStatus = "Saved" | "Applied" | "Accepted" | "Rejected" | "Ghosted";
 
 export type JobApplication = {
   id: number;
   dateApplied: string;
   companyName: string;
+  jobTitle: string;
+  location: string;
   link: string;
   coverLetter: boolean;
   reference: boolean;

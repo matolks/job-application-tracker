@@ -10,7 +10,13 @@ const AUTOMATIC_BACKUP_RETENTION_DAYS = 365;
 const AUTOMATIC_BACKUP_RETENTION_MS =
   AUTOMATIC_BACKUP_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
-const VALID_STATUSES = new Set(["Pending", "Accepted", "Rejected", "Ghosted"]);
+const VALID_STATUSES = new Set([
+  "Saved",
+  "Applied",
+  "Accepted",
+  "Rejected",
+  "Ghosted",
+]);
 let db = null;
 
 function getDataDirectory() {
@@ -59,7 +65,7 @@ export function getDatabase() {
 function normalizeApplication(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const id = Number(value.id);
-  const status = VALID_STATUSES.has(value.status) ? value.status : "Pending";
+  const status = VALID_STATUSES.has(value.status) ? value.status : "Saved";
   return {
     id: Number.isFinite(id) ? id : Date.now(),
     dateApplied:
@@ -68,6 +74,8 @@ function normalizeApplication(value) {
         : new Date().toISOString().slice(0, 10),
     companyName:
       typeof value.companyName === "string" ? value.companyName.trim() : "",
+    jobTitle: typeof value.jobTitle === "string" ? value.jobTitle.trim() : "",
+    location: typeof value.location === "string" ? value.location.trim() : "",
     link: typeof value.link === "string" ? value.link.trim() : "",
     coverLetter: Boolean(value.coverLetter),
     reference: Boolean(value.reference),

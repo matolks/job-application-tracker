@@ -175,13 +175,33 @@ button {
   backdrop-filter: blur(12px);
 }
 
-/* 7-column grid: date | company | link | cover | ref | status | actions */
+/* 9-column grid: date | company | job title | location | link | cover | ref | status | actions */
 .table-grid {
   display: grid;
-  grid-template-columns: 110px 1.4fr 80px 90px 90px 120px 1fr;
+  grid-template-columns: 100px 1.2fr 1.2fr 1fr 72px 84px 84px 110px 1fr;
   align-items: center;
   gap: 14px;
   padding: 0 20px;
+}
+
+.job-title-text {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-text {
+  font-size: 13px;
+  color: rgba(6, 20, 47, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.muted {
+  opacity: 0.35;
 }
 
 /* Sticky header bar */
@@ -301,6 +321,11 @@ button {
 .status-pill.ghosted {
   background: #f3f4f6;
   color: #374151;
+}
+
+.status-pill.saved {
+  background: #e0e7ff;
+  color: #3730a3;
 }
 
 .row-actions {

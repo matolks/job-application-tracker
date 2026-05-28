@@ -15,7 +15,7 @@ import "./App.css";
 
 import type { ApplicationStatus, JobApplication, PersistedAppState } from "./types";
 
-const STATUSES: ApplicationStatus[] = ["Pending", "Accepted", "Rejected", "Ghosted"];
+const STATUSES: ApplicationStatus[] = ["Saved", "Applied", "Accepted", "Rejected", "Ghosted"];
 const EMPTY_APP_STATE: PersistedAppState = { version: 1, applications: [] };
 
 function inferCompanyName(rawLink: string): string {
@@ -50,22 +50,24 @@ function BoolChip({ value }: { value: boolean }) {
 }
 
 function App() {
-  const [activeStatus, setActiveStatus] = useState<ApplicationStatus>("Pending");
+  const [activeStatus, setActiveStatus] = useState<ApplicationStatus>("Saved");
   const [searchTerm, setSearchTerm] = useState("");
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [storageMessage, setStorageMessage] = useState("");
-  // Add modal state
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newLink, setNewLink] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
+  const [newJobTitle, setNewJobTitle] = useState("");
+  const [newLocation, setNewLocation] = useState("");
   const [newCoverLetter, setNewCoverLetter] = useState(false);
   const [newReference, setNewReference] = useState(false);
-  // Edit modal state
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editLink, setEditLink] = useState("");
   const [editCompanyName, setEditCompanyName] = useState("");
+  const [editJobTitle, setEditJobTitle] = useState("");
+  const [editLocation, setEditLocation] = useState("");
   const [editCoverLetter, setEditCoverLetter] = useState(false);
   const [editReference, setEditReference] = useState(false);
 
@@ -85,17 +87,12 @@ function App() {
       }
     }
     loadApplications();
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
-    const state: PersistedAppState = {
-      ...EMPTY_APP_STATE,
-      applications,
-    };
+    const state: PersistedAppState = { ...EMPTY_APP_STATE, applications };
     window.appStorage.save(state).catch((error) => {
       console.error(error);
       setStorageMessage("Could not save applications.");
@@ -104,7 +101,8 @@ function App() {
 
   const countByStatus = useMemo(() => {
     const counts: Record<ApplicationStatus, number> = {
-      Pending: 0,
+      Saved: 0,
+      Applied: 0,
       Accepted: 0,
       Rejected: 0,
       Ghosted: 0,
@@ -118,7 +116,9 @@ function App() {
     return applications.filter(
       (app) =>
         app.status === activeStatus &&
-        app.companyName.toLowerCase().includes(query),
+        (app.companyName.toLowerCase().includes(query) ||
+          app.jobTitle?.toLowerCase().includes(query) ||
+          app.location?.toLowerCase().includes(query)),
     );
   }, [applications, activeStatus, searchTerm]);
 
@@ -144,18 +144,22 @@ function App() {
       id: Date.now(),
       dateApplied: new Date().toISOString().slice(0, 10),
       companyName: newCompanyName.trim(),
+      jobTitle: newJobTitle.trim(),
+      location: newLocation.trim(),
       link: normalizeLink(newLink),
       coverLetter: newCoverLetter,
       reference: newReference,
-      status: "Pending",
+      status: "Saved",
     };
     setApplications((prev) => [application, ...prev]);
     setNewLink("");
     setNewCompanyName("");
+    setNewJobTitle("");
+    setNewLocation("");
     setNewCoverLetter(false);
     setNewReference(false);
     setIsAddOpen(false);
-    setActiveStatus("Pending");
+    setActiveStatus("Saved");
   }
 
   function openEdit(id: number) {
@@ -164,6 +168,8 @@ function App() {
     setEditingId(id);
     setEditLink(app.link);
     setEditCompanyName(app.companyName);
+    setEditJobTitle(app.jobTitle ?? "");
+    setEditLocation(app.location ?? "");
     setEditCoverLetter(app.coverLetter);
     setEditReference(app.reference);
   }
@@ -177,6 +183,8 @@ function App() {
               ...app,
               link: normalizeLink(editLink),
               companyName: editCompanyName.trim(),
+              jobTitle: editJobTitle.trim(),
+              location: editLocation.trim(),
               coverLetter: editCoverLetter,
               reference: editReference,
             }
@@ -251,7 +259,7 @@ function App() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search company…"
+              placeholder="Search company, title, location…"
             />
           </label>
           <button
@@ -277,6 +285,8 @@ function App() {
         <div className="table-header table-grid">
           <span>Date</span>
           <span>Company</span>
+          <span>Job Title</span>
+          <span>Location</span>
           <span>Link</span>
           <span>Cover Letter</span>
           <span>Reference</span>
@@ -296,6 +306,12 @@ function App() {
                 <span className="company-name" title={app.companyName}>
                   {app.companyName}
                 </span>
+                <span className="job-title-text" title={app.jobTitle}>
+                  {app.jobTitle || <span className="muted">—</span>}
+                </span>
+                <span className="location-text" title={app.location}>
+                  {app.location || <span className="muted">—</span>}
+                </span>
                 <a className="job-link" href={app.link} target="_blank" rel="noreferrer">
                   Open <ExternalLink size={11} aria-hidden />
                 </a>
@@ -310,13 +326,11 @@ function App() {
                   >
                     <Pencil size={13} />
                   </button>
-
                   {STATUSES.filter((s) => s !== app.status).map((status) => (
                     <button key={status} onClick={() => updateStatus(app.id, status)}>
                       {status}
                     </button>
                   ))}
-
                   <button
                     className="icon-action danger"
                     onClick={() => deleteApplication(app.id)}
@@ -360,6 +374,24 @@ function App() {
                 placeholder="Auto-filled from link"
               />
             </label>
+            <label>
+              Job title
+              <input
+                type="text"
+                value={newJobTitle}
+                onChange={(e) => setNewJobTitle(e.target.value)}
+                placeholder="e.g. Senior Software Engineer"
+              />
+            </label>
+            <label>
+              Location
+              <input
+                type="text"
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
+                placeholder="e.g. New York, NY or Remote"
+              />
+            </label>
             <div className="checkbox-row">
               <label>
                 <input
@@ -389,6 +421,7 @@ function App() {
           </section>
         </div>
       )}
+
       {editingId !== null && (
         <div
           className="modal-backdrop"
@@ -414,6 +447,24 @@ function App() {
                 value={editCompanyName}
                 onChange={(e) => setEditCompanyName(e.target.value)}
                 autoFocus
+              />
+            </label>
+            <label>
+              Job title
+              <input
+                type="text"
+                value={editJobTitle}
+                onChange={(e) => setEditJobTitle(e.target.value)}
+                placeholder="e.g. Senior Software Engineer"
+              />
+            </label>
+            <label>
+              Location
+              <input
+                type="text"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+                placeholder="e.g. New York, NY or Remote"
               />
             </label>
             <div className="checkbox-row">
@@ -445,6 +496,7 @@ function App() {
           </section>
         </div>
       )}
+
       {isSettingsOpen && (
         <div
           className="modal-backdrop"
