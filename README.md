@@ -1,60 +1,6 @@
 # Job Application Tracker
 
-A desktop application for tracking job applications. It keeps track of company names, job titles, locations, links, cover letter and reference usage, and application status. App data is stored locally with SQLite and includes backup and restore tools through the settings menu.
-
-## Features
-
-- Add, edit, delete, and search job applications
-- Track application status: Saved, Applied, Accepted, Rejected, or Ghosted
-- Search across company name, job title, and location
-- Group applications by location
-- Mark whether a cover letter or reference was used
-- Store application data locally with SQLite
-- Export, import, restore, and manage JSON backups
-
-## How to Run
-
-**Via code:**
-
-```bash
-git clone https://github.com/matolks/job-application-tracker.git
-cd job-application-tracker
-npm install
-npm run desktop
-```
-
-**Via application:**
-
-Windows:
-
-```bash
-git clone https://github.com/matolks/job-application-tracker.git
-cd job-application-tracker
-npm install
-npm run dist:win
-```
-
-Then open the `.exe` file from the `release/` folder.
-
-Mac:
-
-```bash
-git clone https://github.com/matolks/job-application-tracker.git
-cd job-application-tracker
-npm install
-npm run dist:mac
-```
-
-Then open the `.dmg` file from the `release/` folder.
-
-## Tech Stack
-
-- TypeScript
-- React
-- Electron
-- Vite
-- SQLite
-- CSS
+Desktop app for tracking job applications. Stores data locally in SQLite with JSON backup and restore.
 
 ## Screenshots
 
@@ -75,12 +21,64 @@ Then open the `.dmg` file from the `release/` folder.
 </tr>
 </table>
 
-## Future Improvements
+## Features
 
-- Allow upload and download of cover letters
+- Add, edit, delete, and search applications
+- Track status: Saved, Applied, Accepted, Rejected, Ghosted
+- Search across company, title, and location
+- Group applications by location
+- Flag whether a cover letter or reference was used
+- Export, import, and restore JSON backups
+
+## Tech Stack
+
+- **Language:** TypeScript
+- **UI:** React
+- **Desktop runtime:** Electron
+- **Build tool:** Vite
+- **Database:** SQLite
+- **Styling:** CSS
+
+## How to Run
+
+Clone and install once:
+
+```bash
+git clone https://github.com/matolks/job-application-tracker.git
+cd job-application-tracker
+npm install
+```
+
+Then choose one:
+
+**Run in development**
+
+```bash
+npm run desktop
+```
+
+**Build a Windows installer**
+
+```bash
+npm run dist:win
+```
+
+Open the generated `.exe` in `release/`.
+
+**Build a macOS installer**
+
+```bash
+npm run dist:mac
+```
+
+Open the generated `.dmg` in `release/`.
+
+## Roadmap
+
+- Upload and download of cover letters
 - Auto-move to Ghosted after a configurable number of days
-- Graph export to visually display application history and outcomes
-- Better restore UX (currently only toggles to the latest backup)
+- Graph export for application history and outcomes
+- Restore UX beyond toggling to the latest backup
 
 ## License
 
